@@ -1,0 +1,23 @@
+replicaCount: 1
+
+nameOverride: order
+
+image:
+  repository: mobikop/order-service
+
+app:
+  port: 8080
+
+service:
+  type: NodePort
+  port: 80
+
+postgresql:
+  enabled: true
+  postgresqlUsername: myuser
+  postgresqlPassword: passwd
+  postgresqlDatabase: myapp
+  service:
+    port: "5432"
+  persistence:
+    size: 1Gi
