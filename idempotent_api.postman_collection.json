@@ -1,0 +1,386 @@
+{
+	"info": {
+		"_postman_id": "adc19b75-6566-4b14-8bf6-49e8bcd5dcbd",
+		"name": "Idempotent API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "create user 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ffe04642-2d9b-4814-a615-f5fdcf313d15",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"var responseJSON = JSON.parse(responseBody)",
+							"pm.collectionVariables.set(\"userId\", responseJSON[\"id\"])"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "08968ef4-364a-469c-9d18-18ad881cfed0",
+						"exec": [
+							"pm.collectionVariables.set(\"orderId\", pm.variables.replaceIn('{{$guid}}'))",
+							"pm.collectionVariables.set(\"password\", pm.variables.replaceIn('{{$randomPassword}}'))",
+							"pm.collectionVariables.set(\"username\", pm.variables.replaceIn('{{$randomUserName}}'))",
+							"pm.collectionVariables.set(\"firstname\", pm.variables.replaceIn('{{$randomFirstName}}'))",
+							"pm.collectionVariables.set(\"lastname\", pm.variables.replaceIn('{{$randomLastName}}'))",
+							"pm.collectionVariables.set(\"email\", pm.variables.replaceIn('{{$randomEmail}}'))",
+							"pm.collectionVariables.set(\"phone\", pm.variables.replaceIn('{{$randomPhoneNumber}}'))"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"{{password}}\",\n    \"firstName\": \"{{firstname}}\",\n    \"lastName\": \"{{lastname}}\",\n    \"email\": \"{{email}}\",\n    \"phone\": \"{{phone}}\"\n}"
+				},
+				"url": {
+					"raw": "http://{{baseUrl}}/user",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "account balance is 0.00",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "02fda8e6-578a-4695-923f-4bad7670078d",
+						"exec": [
+							"var responseJSON;",
+							"",
+							"try {",
+							"    responseJSON = JSON.parse(responseBody);",
+							"}",
+							"catch (err) {",
+							"}",
+							"pm.test(\"Account balance is 0.00\", function () {",
+							"    pm.response.to.have.body(\"0.00\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-UserId",
+						"type": "text",
+						"value": "{{userId}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{baseUrl}}/balance/{{userId}}",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"balance",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deposit 100.00",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "45a3364c-88b5-4aae-a4a2-b33bbddb61f3",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": \"{{userId}}\",\n    \"money\": \"100.00\"\n}"
+				},
+				"url": {
+					"raw": "http://{{baseUrl}}/balance/deposit",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"balance",
+						"deposit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create order in 50.00 USD",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "875ebcd0-67fc-454f-b10d-4963e3b50d06",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": {{userId}},\n    \"money\": \"50.00\",\n    \"description\": \"bike\"\n}"
+				},
+				"url": {
+					"raw": "http://{{baseUrl}}/order?X-Request-Id=1",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"order"
+					],
+					"query": [
+						{
+							"key": "X-Request-Id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create wrong order in 50.00 US",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0956e189-a298-4a1f-80b0-197b835d2f78",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const responseJson = pm.response.json();",
+							"pm.test(\"Order already created\", function () {",
+							"    pm.expect(responseJson.status).to.eql(\"Order already created\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Request-Id",
+						"value": "1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": {{userId}},\n    \"money\": \"50.00\",\n    \"description\": \"bike\"\n}"
+				},
+				"url": {
+					"raw": "http://{{baseUrl}}/order",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"order"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "account balance is still 50.00",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9e405bee-081a-4320-9b0e-5c0784987253",
+						"exec": [
+							"var responseJSON;",
+							"",
+							"try {",
+							"    responseJSON = JSON.parse(responseBody);",
+							"}",
+							"catch (err) {",
+							"}",
+							"pm.test(\"Account balance is 50.00\", function () {",
+							"    pm.response.to.have.body(\"50.00\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-UserId",
+						"type": "text",
+						"value": "{{userId}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{baseUrl}}/balance/{{userId}}",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"balance",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "54744633-02db-413b-8fd0-90488b3c5108",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "0675df86-c8ff-47f3-8e29-1f9a1d9286bd",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "c6f09774-1acd-42ec-8554-a72138b86f4b",
+			"key": "userId",
+			"value": "{userId}"
+		},
+		{
+			"id": "f85f0a25-47b2-4e11-85e6-4108bd8945e5",
+			"key": "baseUrl",
+			"value": "arch.homework"
+		},
+		{
+			"id": "f42c3a9e-936f-4725-b38a-db084d1dcb5f",
+			"key": "username",
+			"value": ""
+		},
+		{
+			"id": "10e5c91f-79d4-4c17-bfcd-6e8416fa68dd",
+			"key": "password",
+			"value": ""
+		},
+		{
+			"id": "9fbed0c5-78ab-4f26-95c8-3cc0a4bbe0b8",
+			"key": "firstname",
+			"value": ""
+		},
+		{
+			"id": "59b368bc-cc7a-4fa9-878d-e62b96b9c393",
+			"key": "lastname",
+			"value": ""
+		},
+		{
+			"id": "ab44dc49-7fe3-42f3-b1d6-e36ee6bf1f12",
+			"key": "email",
+			"value": ""
+		},
+		{
+			"id": "0d0659a4-17d6-487e-bad2-8655cff73fab",
+			"key": "phone",
+			"value": ""
+		},
+		{
+			"id": "39956005-9e90-43aa-8159-99eedd9b6eb2",
+			"key": "user",
+			"value": "",
+			"disabled": true
+		},
+		{
+			"id": "cd1f899e-94fa-418d-b380-1e30993853dc",
+			"key": "pass",
+			"value": "",
+			"disabled": true
+		},
+		{
+			"id": "88170902-f8c5-4867-b1a4-094a79ab3114",
+			"key": "orderId",
+			"value": ""
+		}
+	],
+	"protocolProfileBehavior": {}
+}
